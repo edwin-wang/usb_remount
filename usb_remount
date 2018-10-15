@@ -14,12 +14,17 @@ fi
 for mnt in $( mount | grep read-only | grep -v mounted ); do
 
     src_dev=$( echo $mnt | awk {'print $1'} )
-    tgt_dev=$( echo $mnt | awk {'print $3'} )
-    fs=$( echo $mnt | awk {'print $4'} | awk '{print substr($0, 2, length($0) - 2)}' )
+    tgt_dev=$( df | grep $src_dev | grep -o '\/Volume.*' )
+    fs=$( mount | grep $src_dev | awk -F"(" {'print $2'} | awk -F"," {'print $1'} )
+
+    idf=$( echo $src_dev | awk -F'/' {'print $3'} )
+    if [ $( system_profiler SPUSBDataType 2>/dev/null | grep -c $idf ) -eq 0 ]; then
+        continue
+    fi
 
     sudo diskutil unmount $src_dev
-    sudo mkdir $tgt_dev
-    sudo mount -t $fs $src_dev $tgt_dev
+    sudo mkdir -p "$tgt_dev"
+    sudo mount -t $fs $src_dev "$tgt_dev"
 
     ret=$?
     if [ $ret -ne 0 ]; then

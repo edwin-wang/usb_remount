@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# USE AT YOUR OWN RISK!!!
+# usb_remount - version 1.0
+
+
+IFS=$'\n'
+vol_dir=0
+
+if [ $(mount | grep -v mounted | grep read-only -c) -eq 0 ]; then
+    echo "no read-only devices were detected"
+    exit
+fi
+
+for mnt in $( mount | grep read-only | grep -v mounted ); do
+
+    src_dev=$( echo $mnt | awk {'print $1'} )
+    tgt_dev=$( echo $mnt | awk {'print $3'} )
+    fs=$( echo $mnt | awk {'print $4'} | awk '{print substr($0, 2, length($0) - 2)}' )
+
+    sudo diskutil unmount $src_dev
+    sudo mkdir $tgt_dev
+    sudo mount -t $fs $src_dev $tgt_dev
+
+    ret=$?
+    if [ $ret -ne 0 ]; then
+        echo "re-mount error: mount -t $fs $src_dev $tgt_dev"
+        echo "return: $ret"
+    else
+        echo "mount $src_dev on $tgt_dev successfully"
+    fi
+
+done
+
+#mount

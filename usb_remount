@@ -1,13 +1,12 @@
 #!/bin/bash
 
 # USE AT YOUR OWN RISK!!!
-# usb_remount - version 1.0
+# usb_remount - version 1.0.1
 
 
 IFS=$'\n'
-vol_dir=0
 
-if [ $(mount | grep -v mounted | grep read-only -c) -eq 0 ]; then
+if [ $( mount | grep -v mounted | grep read-only -c ) -eq 0 ]; then
     echo "no read-only devices were detected"
     exit
 fi
